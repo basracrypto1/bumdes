@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPAK BUMDesa – Sistem Pencatatan Akuntansi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hijau: #1a6b3a;
+    --hijau-mid: #2d9c55;
+    --hijau-light: #e6f4ec;
+    --hijau-muted: #a8d5b8;
+    --emas: #c89b3c;
+    --emas-light: #fdf6e3;
+    --merah: #c0392b;
+    --merah-light: #fdecea;
+    --biru: #1a4fa0;
+    --biru-light: #e8eef9;
+    --abu: #6b7280;
+    --abu-light: #f3f4f6;
+    --putih: #ffffff;
+    --gelap: #111827;
+    --border: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f0f4f0;
+    color: var(--gelap);
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 240px;
+    background: var(--hijau);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  }
+
+  .sidebar-brand {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .brand-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+
+  .brand-icon {
+    width: 38px; height: 38px;
+    background: var(--emas);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .brand-text { color: #fff; }
+  .brand-text .app-name { font-size: 13px; font-weight: 800; letter-spacing: 0.3px; line-height: 1.2; }
+  .brand-text .app-sub { font-size: 10px; opacity: 0.65; font-weight: 400; }
+
+  .bumdes-info {
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .bumdes-info .desa-name { font-size: 11px; color: var(--emas); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .bumdes-info .bumdes-name { font-size: 13px; color: #fff; font-weight: 700; margin-top: 2px; }
+  .bumdes-info .unit-name { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+
+  .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  
+  .nav-section-label {
+    font-size: 9.5px; font-weight: 700; letter-spacing: 1px;
+    color: rgba(255,255,255,0.4); text-transform: uppercase;
+    padding: 14px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    cursor: pointer; color: rgba(255,255,255,0.75);
+    font-size: 13px; font-weight: 500;
+    transition: all 0.18s; margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .nav-item.active { background: rgba(255,255,255,0.18); color: #fff; font-weight: 600; }
+  .nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 10px; color: rgba(255,255,255,0.4); text-align: center;
+  }
+
+  /* ── MAIN ── */
+  .main { margin-left: 240px; min-height: 100vh; }
+
+  .topbar {
+    background: #fff; border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 58px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .topbar-title { font-size: 15px; font-weight: 700; color: var(--gelap); }
+  .topbar-sub { font-size: 11px; color: var(--abu); margin-top: 1px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .badge-version {
+    background: var(--hijau-light); color: var(--hijau);
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+    border: 1px solid var(--hijau-muted);
+  }
+
+  .tahun-badge {
+    background: var(--emas-light); color: var(--emas);
+    font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid #e8d0a0;
+  }
+
+  .content { padding: 24px; }
+
+  /* ── PAGE ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .card-title { font-size: 13px; font-weight: 700; color: var(--gelap); }
+  .card-sub { font-size: 11px; color: var(--abu); margin-top: 2px; }
+  .card-body { padding: 20px; }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+
+  .stat-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid var(--border); padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--abu); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 22px; font-weight: 800; margin-top: 6px; line-height: 1; }
+  .stat-note { font-size: 10px; color: var(--abu); margin-top: 6px; }
+
+  .stat-card.hijau .stat-value { color: var(--hijau); }
+  .stat-card.emas .stat-value { color: var(--emas); }
+  .stat-card.merah .stat-value { color: var(--merah); }
+  .stat-card.biru .stat-value { color: var(--biru); }
+
+  .stat-icon {
+    font-size: 22px; margin-bottom: 8px;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead th {
+    background: #f8f9fb; font-weight: 700; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.4px; color: var(--abu);
+    padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th.right { text-align: right; }
+  tbody tr { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:hover { background: #fafbfc; }
+  tbody td { padding: 9px 14px; color: var(--gelap); vertical-align: middle; }
+  tbody td.right { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  tbody td.muted { color: var(--abu); font-size: 11px; }
+
+  .badge {
+    display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+  }
+  .badge-debit { background: var(--biru-light); color: var(--biru); }
+  .badge-kredit { background: var(--merah-light); color: var(--merah); }
+  .badge-aktif { background: var(--hijau-light); color: var(--hijau); }
+
+  .kode-akun { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--abu); }
+
+  /* ── FORMS ── */
+  .form-grid { display: grid; gap: 14px; }
+  .form-grid.cols2 { grid-template-columns: 1fr 1fr; }
+  .form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 700; color: var(--abu);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-family: inherit;
+    color: var(--gelap); background: #fff;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--hijau-mid);
+    box-shadow: 0 0 0 3px rgba(45,156,85,0.1);
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; border: none;
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: all 0.16s;
+  }
+  .btn-primary { background: var(--hijau); color: #fff; }
+  .btn-primary:hover { background: var(--hijau-mid); }
+  .btn-emas { background: var(--emas); color: #fff; }
+  .btn-emas:hover { opacity: 0.9; }
+  .btn-outline { background: #fff; color: var(--gelap); border: 1.5px solid var(--border); }
+  .btn-outline:hover { background: var(--abu-light); }
+  .btn-sm { padding: 5px 10px; font-size: 11.5px; }
+  .btn-danger { background: var(--merah-light); color: var(--merah); }
+  .btn-danger:hover { background: var(--merah); color: #fff; }
+
+  /* ── JURNAL ENTRY ── */
+  .jurnal-entry {
+    border: 1.5px solid var(--border); border-radius: 10px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .jurnal-header {
+    background: #f8f9fb; padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .jurnal-no { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--abu); }
+  .jurnal-keterangan { font-size: 12.5px; font-weight: 600; }
+  .jurnal-tanggal { font-size: 11px; color: var(--abu); }
+
+  /* ── NERACA ── */
+  .neraca-section { margin-bottom: 20px; }
+  .neraca-group-title {
+    background: var(--hijau); color: #fff;
+    padding: 8px 14px; font-size: 12px; font-weight: 700;
+    border-radius: 6px 6px 0 0;
+  }
+  .neraca-sub-title {
+    background: var(--hijau-light); color: var(--hijau);
+    padding: 7px 14px; font-size: 11px; font-weight: 700;
+    border-left: 3px solid var(--hijau);
+  }
+  .neraca-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 14px; border-bottom: 1px solid #f3f4f6;
+    font-size: 12.5px;
+  }
+  .neraca-row:hover { background: #fafbfc; }
+  .neraca-total {
+    display: flex; justify-content: space-between;
+    padding: 9px 14px; background: #f0f4f0;
+    font-weight: 700; font-size: 12.5px; border-top: 2px solid var(--hijau-muted);
+  }
+  .neraca-total.grand {
+    background: var(--hijau); color: #fff; font-size: 13px;
+    border-radius: 0 0 6px 6px;
+  }
+  .amount { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .amount.pos { color: var(--hijau); }
+  .amount.neg { color: var(--merah); }
+
+  /* ── EIS / DASHBOARD ── */
+  .eis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  .ratio-card {
+    background: #fff; border-radius: 12px; padding: 18px 20px;
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .ratio-title { font-size: 12px; font-weight: 700; color: var(--abu); text-transform: uppercase; letter-spacing: 0.4px; }
+  .ratio-value { font-size: 28px; font-weight: 800; color: var(--gelap); margin: 8px 0 4px; font-family: 'DM Mono', monospace; }
+  .ratio-desc { font-size: 11px; color: var(--abu); }
+
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--hijau-mid); transition: width 0.4s; }
+  .progress-fill.kuning { background: var(--emas); }
+  .progress-fill.merah { background: var(--merah); }
+
+  /* ── LAYOUT HELPERS ── */
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+  .flex-gap { display: flex; align-items: center; gap: 10px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-20 { margin-bottom: 20px; }
+  .mt-16 { margin-top: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── ALERTS ── */
+  .alert {
+    padding: 12px 16px; border-radius: 8px; font-size: 12.5px;
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px;
+  }
+  .alert-info { background: var(--biru-light); color: var(--biru); border-left: 3px solid var(--biru); }
+  .alert-success { background: var(--hijau-light); color: var(--hijau); border-left: 3px solid var(--hijau); }
+  .alert-warning { background: var(--emas-light); color: #8a6000; border-left: 3px solid var(--emas); }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--abu); }
+  .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state .empty-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .empty-state .empty-desc { font-size: 12px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; background: var(--abu-light); border-radius: 8px; padding: 3px; margin-bottom: 20px; }
+  .tab {
+    flex: 1; text-align: center; padding: 7px 12px;
+    border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;
+    color: var(--abu); transition: all 0.15s;
+  }
+  .tab.active { background: #fff; color: var(--gelap); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; width: 560px; max-width: 95vw;
+    max-height: 85vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.2s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 14px; font-weight: 700; }
+  .modal-close { cursor: pointer; font-size: 18px; color: var(--abu); background: none; border: none; line-height: 1; }
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* Notification */
+  .notif {
+    position: fixed; bottom: 20px; right: 20px;
+    background: var(--hijau); color: #fff;
+    padding: 12px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: var(--shadow-lg); z-index: 300;
+    animation: slideIn 0.2s ease;
+    display: none;
+  }
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="brand-icon">B</div>
+      <div class="brand-text">
+        <div class="app-name">PPAK BUMDesa</div>
+        <div class="app-sub">Pencatatan & Pelaporan Akuntansi</div>
+      </div>
+    </div>
+    <div class="bumdes-info">
+      <div class="desa-name">Desa Tanah Merah Laok</div>
+      <div class="bumdes-name">BHEJREH GHUNAH</div>
+      <div class="unit-name">Unit: Peternakan</div>
+    </div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Utama</div>
+    <div class="nav-item active" onclick="showPage('home')">
+      <span class="nav-icon">🏠</span> Beranda (Home)
+    </div>
+    <div class="nav-item" onclick="showPage('eis')">
+      <span class="nav-icon">📊</span> Ringkasan Eksekutif
+    </div>
+
+    <div class="nav-section-label">Pencatatan</div>
+    <div class="nav-item" onclick="showPage('jurnal')">
+      <span class="nav-icon">📝</span> Jurnal Transaksi
+    </div>
+    <div class="nav-item" onclick="showPage('coa')">
+      <span class="nav-icon">📋</span> Daftar Akun (COA)
+    </div>
+    <div class="nav-item" onclick="showPage('buku-besar')">
+      <span class="nav-icon">📖</span> Buku Besar
+    </div>
+    <div class="nav-item" onclick="showPage('neraca-saldo')">
+      <span class="nav-icon">⚖️</span> Neraca Saldo
+    </div>
+
+    <div class="nav-section-label">Laporan Keuangan</div>
+    <div class="nav-item" onclick="showPage('laba-rugi')">
+      <span class="nav-icon">💰</span> Laba Rugi
+    </div>
+    <div class="nav-item" onclick="showPage('neraca')">
+      <span class="nav-icon">🏦</span> Neraca / Posisi Keuangan
+    </div>
+    <div class="nav-item" onclick="showPage('lpe')">
+      <span class="nav-icon">📈</span> Lap. Perubahan Ekuitas
+    </div>
+    <div class="nav-item" onclick="showPage('lak')">
+      <span class="nav-icon">💸</span> Laporan Arus Kas
+    </div>
+
+    <div class="nav-section-label">Buku Pembantu</div>
+    <div class="nav-item" onclick="showPage('bp-piutang')">
+      <span class="nav-icon">📌</span> BP Piutang & Utang
+    </div>
+    <div class="nav-item" onclick="showPage('bp-persediaan')">
+      <span class="nav-icon">📦</span> BP Persediaan
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    Ver 4.2 · Freeware · sahabatbumdesa@gmail.com
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Beranda – PPAK BUMDesa</div>
+      <div class="topbar-sub" id="topbar-sub">Aplikasi Pencatatan dan Pelaporan Akuntansi Keuangan Badan Usaha Milik Desa</div>
+    </div>
+    <div class="topbar-right">
+      <span class="badge-version">Ver 4.2</span>
+      <span class="tahun-badge">Tahun Buku 2025</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══════ HOME ═══════ -->
+    <div id="page-home" class="page active">
+      <div class="stats-grid">
+        <div class="stat-card hijau">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Aset</div>
+          <div class="stat-value">Rp 272 Jt</div>
+          <div class="stat-note">Penyertaan Modal Desa</div>
+        </div>
+        <div class="stat-card emas">
+          <div class="stat-icon">📈</div>
+          <div class="stat-label">Pendapatan</div>
+          <div class="stat-value">Rp 0</div>
+          <div class="stat-note">Realisasi tahun berjalan</div>
+        </div>
+        <div class="stat-card merah">
+          <div class="stat-icon">📉</div>
+          <div class="stat-label">Total Beban</div>
+          <div class="stat-value">Rp 0</div>
+          <div class="stat-note">Realisasi tahun berjalan</div>
+        </div>
+        <div class="stat-card biru">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-label">Laba / Rugi</div>
+          <div class="stat-value">Rp 0</div>
+          <div class="stat-note">Laba bersih periode ini</div>
+        </div>
+      </div>
+
+      <div class="grid2 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🏛️ Identitas BUMDesa</div>
+              <div class="card-sub">Informasi dasar badan usaha</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="openModal('modal-identitas')">✏️ Edit</button>
+          </div>
+          <div class="card-body">
+            <table style="width:100%; font-size:12.5px; border-collapse:collapse;">
+              <tr><td style="padding:5px 0; color:var(--abu); width:130px;">Nama Kabupaten</td><td style="font-weight:600;">Bangkalan</td></tr>
+              <tr><td style="padding:5px 0; color:var(--abu);">ID BUM Desa</td><td style="font-family:'DM Mono',monospace; font-size:11px;">3526132002-1-093683</td></tr>
+              <tr><td style="padding:5px 0; color:var(--abu);">Nama Desa</td><td style="font-weight:600;">Tanah Merah Laok</td></tr>
+              <tr><td style="padding:5px 0; color:var(--abu);">Nama BUMDesa</td><td style="font-weight:700; color:var(--hijau);">BHEJREH GHUNAH</td></tr>
+              <tr><td style="padding:5px 0; color:var(--abu);">Alamat</td><td>Desa Tanah Merah Laok</td></tr>
+              <tr><td style="padding:5px 0; color:var(--abu);">Unit Usaha</td><td><span class="badge badge-aktif">Peternakan</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">👤 Pejabat BUMDesa</div>
+              <div class="card-sub">Direktur dan petugas akuntansi</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="background:var(--hijau-light); border-radius:8px; padding:12px 14px; margin-bottom:12px;">
+              <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--hijau); font-weight:700;">Direktur BUMDesa</div>
+              <div style="font-size:14px; font-weight:700; margin-top:4px;">FATHORROSSI</div>
+              <div style="font-size:11px; color:var(--abu); font-family:'DM Mono',monospace; margin-top:2px;">NIP: 3526132003940001</div>
+            </div>
+            <div style="background:var(--abu-light); border-radius:8px; padding:12px 14px;">
+              <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--abu); font-weight:700;">Petugas Akuntansi</div>
+              <div style="font-size:14px; font-weight:600; margin-top:4px; color:var(--abu);">— Belum diisi —</div>
+            </div>
+            <div class="divider" style="margin:14px 0;"></div>
+            <div class="flex-gap">
+              <div style="font-size:11px; color:var(--abu);">Tahun Buku:</div>
+              <div style="font-size:12px; font-weight:700;">01 Jan 2025 – 31 Des 2025</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">ℹ️ Panduan Penggunaan Aplikasi</div>
+            <div class="card-sub">Langkah setup awal dan cara menjalankan PPAK BUMDesa</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">💡 Aplikasi ini dapat digunakan oleh BUM Desa maupun BUM Desa bersama yang memiliki berbagai kegiatan usaha jasa, dagang dan manufaktur sekaligus.</div>
+          <div class="grid2">
+            <div>
+              <div style="font-size:12px; font-weight:700; margin-bottom:10px;">📋 Langkah Setup Awal</div>
+              <div style="font-size:12px; color:var(--abu); line-height:1.8;">
+                1. Isi identitas BUMDesa di halaman ini<br>
+                2. Sesuaikan Daftar Akun (COA) dengan kebutuhan<br>
+                3. Input Anggaran BUMDes di kolom anggaran<br>
+                4. Isi nama petugas akuntansi dan pejabat penandatangan
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px; font-weight:700; margin-bottom:10px;">✏️ Langkah Input Transaksi</div>
+              <div style="font-size:12px; color:var(--abu); line-height:1.8;">
+                1. Buka menu Jurnal Transaksi<br>
+                2. Analisis transaksi dan pilih akun yang sesuai<br>
+                3. Input jumlah Debit dan Kredit (double entry)<br>
+                4. Isi tanggal, no. bukti, dan keterangan transaksi
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-warning" style="margin-top:14px; margin-bottom:0;">
+            ⚠️ <strong>Persamaan Dasar Akuntansi:</strong> ASET + BEBAN = UTANG + MODAL + PENDAPATAN. Setiap transaksi harus seimbang (Debit = Kredit).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ EIS (Ringkasan Eksekutif) ═══════ -->
+    <div id="page-eis" class="page">
+      <div class="alert alert-success mb-20">📊 <strong>Ringkasan Informasi Eksekutif (EIS)</strong> – Indikator kinerja keuangan BUMDesa secara real-time.</div>
+      <div class="stats-grid mb-20">
+        <div class="stat-card hijau"><div class="stat-icon">💵</div><div class="stat-label">Kas & Setara Kas</div><div class="stat-value">Rp 0</div><div class="stat-note">Kas tunai + rekening bank</div></div>
+        <div class="stat-card emas"><div class="stat-icon">📊</div><div class="stat-label">Total Pendapatan</div><div class="stat-value">Rp 0</div><div class="stat-note">Realisasi s.d. hari ini</div></div>
+        <div class="stat-card merah"><div class="stat-icon">🔻</div><div class="stat-label">Total Beban</div><div class="stat-value">Rp 0</div><div class="stat-note">Biaya operasional & umum</div></div>
+        <div class="stat-card biru"><div class="stat-icon">⚖️</div><div class="stat-label">Modal BUMDesa</div><div class="stat-value">Rp 272 Jt</div><div class="stat-note">Penyertaan modal desa</div></div>
+      </div>
+
+      <div class="eis-grid">
+        <div class="ratio-card">
+          <div class="ratio-title">Rasio Likuiditas (Current Ratio)</div>
+          <div class="ratio-value">—</div>
+          <div class="ratio-desc">Aset Lancar / Utang Lancar — Minimal 1,0x</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="ratio-card">
+          <div class="ratio-title">Rasio Profitabilitas (ROE)</div>
+          <div class="ratio-value">0%</div>
+          <div class="ratio-desc">Laba Bersih / Ekuitas — Semakin tinggi semakin baik</div>
+          <div class="progress-bar"><div class="progress-fill kuning" style="width:0%"></div></div>
+        </div>
+        <div class="ratio-card">
+          <div class="ratio-title">Realisasi Anggaran Pendapatan</div>
+          <div class="ratio-value">0%</div>
+          <div class="ratio-desc">Realisasi Rp 0 dari Anggaran Rp 0</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="ratio-card">
+          <div class="ratio-title">Realisasi Anggaran Belanja</div>
+          <div class="ratio-value">0%</div>
+          <div class="ratio-desc">Realisasi Rp 0 dari Anggaran Rp 0</div>
+          <div class="progress-bar"><div class="progress-fill merah" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 10 Transaksi Terakhir</div></div>
+        <div class="card-body">
+          <div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">Belum ada transaksi</div><div class="empty-desc">Silakan input transaksi melalui menu Jurnal Transaksi</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ JURNAL ═══════ -->
+    <div id="page-jurnal" class="page">
+      <div class="flex-between mb-20">
+        <div></div>
+        <button class="btn btn-primary" onclick="openModal('modal-jurnal')">➕ Input Transaksi Baru</button>
+      </div>
+
+      <div class="card mb-20">
+        <div class="card-header">
+          <div><div class="card-title">📝 Buku Jurnal Umum</div><div class="card-sub">Daftar seluruh transaksi periode berjalan</div></div>
+          <div class="flex-gap">
+            <input type="text" placeholder="Cari transaksi..." style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:12px; width:200px;">
+          </div>
+        </div>
+        <div class="card-body" id="jurnal-list">
+          <div class="alert alert-info" style="margin-bottom:0;">
+            💡 <strong>Mekanisme Double Entry:</strong> Setiap transaksi minimal satu akun di Debit dan satu akun di Kredit. Total Debit harus selalu sama dengan total Kredit.
+          </div>
+          <div style="margin-top:16px;">
+            <div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">Belum ada jurnal transaksi</div><div class="empty-desc">Klik tombol "Input Transaksi Baru" untuk memulai pencatatan</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ COA ═══════ -->
+    <div id="page-coa" class="page">
+      <div class="alert alert-info mb-20">📋 <strong>Daftar Akun (Chart of Accounts)</strong> – Sesuaikan kode dan nama akun dengan Pedoman Akuntansi BUMDesa. Password perlindungan: <code style="background:#eee;padding:1px 5px;border-radius:3px;">admin</code></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Daftar Akun</div><div class="card-sub">182 akun tersedia (Level 4)</div></div>
+          <div class="flex-gap">
+            <select style="padding:6px 10px; border:1.5px solid var(--border); border-radius:8px; font-size:12px;" onchange="filterCOA(this.value)">
+              <option value="">Semua Kelompok</option>
+              <option value="1">1. Aset</option>
+              <option value="2">2. Utang / Kewajiban</option>
+              <option value="3">3. Ekuitas / Modal</option>
+              <option value="4">4. Pendapatan</option>
+              <option value="5">5. HPP / Harga Pokok</option>
+              <option value="6">6. Beban</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="coa-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Kode Akun</th>
+                <th>Nama Akun</th>
+                <th>Saldo Normal</th>
+                <th class="right">Anggaran (Rp)</th>
+                <th class="right">Realisasi (Rp)</th>
+                <th class="right">%</th>
+              </tr>
+            </thead>
+            <tbody id="coa-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ BUKU BESAR ═══════ -->
+    <div id="page-buku-besar" class="page">
+      <div class="card mb-16">
+        <div class="card-body" style="padding:14px 20px;">
+          <div class="flex-gap">
+            <span style="font-size:12px; font-weight:600;">Pilih Akun:</span>
+            <select style="padding:7px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:12.5px; min-width:300px;" id="bb-select">
+              <option value="">— Pilih akun —</option>
+            </select>
+            <button class="btn btn-primary btn-sm">Tampilkan</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📖 Buku Besar</div><div class="card-sub" id="bb-akun-label">Pilih akun di atas</div></div>
+        <div class="card-body">
+          <div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Pilih akun untuk melihat buku besar</div><div class="empty-desc">Semua mutasi debit dan kredit per akun akan ditampilkan di sini</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ NERACA SALDO ═══════ -->
+    <div id="page-neraca-saldo" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">⚖️ Neraca Saldo</div><div class="card-sub">Per 31 Desember 2025</div></div>
+          <button class="btn btn-outline btn-sm">🖨️ Cetak</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kode Akun</th>
+                <th>Nama Akun</th>
+                <th class="right">Debit (Rp)</th>
+                <th class="right">Kredit (Rp)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="kode-akun">3.1.01.01</td><td>Penyertaan Modal Desa</td><td class="right">—</td><td class="right amount">272.111.000</td></tr>
+              <tr style="font-weight:700; background:#f8f9fb;">
+                <td colspan="2" style="text-align:right; padding-right:14px;">TOTAL</td>
+                <td class="right amount pos">272.111.000</td>
+                <td class="right amount pos">272.111.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ LABA RUGI ═══════ -->
+    <div id="page-laba-rugi" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">💰 Laporan Laba Rugi</div><div class="card-sub">BHEJREH GHUNAH – Unit Peternakan | Periode 1 Jan – 31 Des 2025</div></div>
+          <button class="btn btn-outline btn-sm">🖨️ Cetak</button>
+        </div>
+        <div class="card-body">
+          <div class="neraca-section">
+            <div class="neraca-group-title">PENDAPATAN</div>
+            <div class="neraca-sub-title">Pendapatan Usaha Jasa</div>
+            <div class="neraca-row"><span>Pendapatan Tiket</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pendapatan Sewa</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pendapatan Jasa Lainnya</span><span class="amount">—</span></div>
+            <div class="neraca-sub-title">Pendapatan Usaha Dagang</div>
+            <div class="neraca-row"><span>Pendapatan Penjualan Barang Dagangan</span><span class="amount">—</span></div>
+            <div class="neraca-sub-title">Pendapatan Usaha Manufaktur</div>
+            <div class="neraca-row"><span>Pendapatan Katering / Restoran</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>TOTAL PENDAPATAN</span><span class="amount">Rp 0</span></div>
+          </div>
+          <div class="neraca-section">
+            <div class="neraca-group-title">HARGA POKOK PENJUALAN / PRODUKSI</div>
+            <div class="neraca-row"><span>HPP Barang Dagangan</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>HPP Barang Jadi</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>TOTAL HPP</span><span class="amount neg">Rp 0</span></div>
+          </div>
+          <div class="neraca-total" style="font-size:13px; background:var(--hijau-light); color:var(--hijau); margin-bottom:16px;">
+            <span>LABA KOTOR</span><span class="amount">Rp 0</span>
+          </div>
+          <div class="neraca-section">
+            <div class="neraca-group-title">BEBAN OPERASIONAL</div>
+            <div class="neraca-sub-title">Beban Administrasi dan Umum</div>
+            <div class="neraca-row"><span>Beban Gaji dan Tunjangan</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Beban Perlengkapan Kantor</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Beban Listrik & Utilitas</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Beban Penyusutan</span><span class="amount">—</span></div>
+            <div class="neraca-sub-title">Beban Operasional Lainnya</div>
+            <div class="neraca-row"><span>Beban Operasional</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Beban Pemasaran</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>TOTAL BEBAN</span><span class="amount neg">Rp 0</span></div>
+          </div>
+          <div class="neraca-total grand"><span>LABA / RUGI BERSIH</span><span class="amount">Rp 0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ NERACA ═══════ -->
+    <div id="page-neraca" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🏦 Neraca / Laporan Posisi Keuangan</div><div class="card-sub">BHEJREH GHUNAH | Per 31 Desember 2025</div></div>
+          <button class="btn btn-outline btn-sm">🖨️ Cetak</button>
+        </div>
+        <div class="card-body">
+          <div class="grid2">
+            <div>
+              <div class="neraca-section">
+                <div class="neraca-group-title">ASET</div>
+                <div class="neraca-sub-title">Aset Lancar</div>
+                <div class="neraca-row"><span>Kas Tunai</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Kas di Bank</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Piutang Usaha</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Persediaan</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Aset Biologis</span><span class="amount">—</span></div>
+                <div class="neraca-total"><span>Subtotal Aset Lancar</span><span class="amount">Rp 0</span></div>
+                <div class="neraca-sub-title">Aset Tidak Lancar</div>
+                <div class="neraca-row"><span>Tanah</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Kendaraan (neto)</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Peralatan & Mesin (neto)</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Gedung & Bangunan (neto)</span><span class="amount">—</span></div>
+                <div class="neraca-total"><span>Subtotal Aset Tidak Lancar</span><span class="amount">Rp 0</span></div>
+                <div class="neraca-total grand"><span>TOTAL ASET</span><span class="amount">Rp 272.111.000</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="neraca-section">
+                <div class="neraca-group-title">KEWAJIBAN & EKUITAS</div>
+                <div class="neraca-sub-title">Kewajiban Jangka Pendek</div>
+                <div class="neraca-row"><span>Utang Usaha</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Utang Pajak</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Utang Gaji</span><span class="amount">—</span></div>
+                <div class="neraca-total"><span>Subtotal Utang Lancar</span><span class="amount">Rp 0</span></div>
+                <div class="neraca-sub-title">Kewajiban Jangka Panjang</div>
+                <div class="neraca-row"><span>Utang ke Bank</span><span class="amount">—</span></div>
+                <div class="neraca-total"><span>Subtotal Utang Jk. Panjang</span><span class="amount">Rp 0</span></div>
+                <div class="neraca-sub-title">Ekuitas / Modal</div>
+                <div class="neraca-row"><span>Penyertaan Modal Desa</span><span class="amount pos">272.111.000</span></div>
+                <div class="neraca-row"><span>Penyertaan Modal Masyarakat</span><span class="amount">—</span></div>
+                <div class="neraca-row"><span>Saldo Laba</span><span class="amount">—</span></div>
+                <div class="neraca-total"><span>Subtotal Ekuitas</span><span class="amount pos">Rp 272.111.000</span></div>
+                <div class="neraca-total grand"><span>TOTAL KEWAJIBAN + EKUITAS</span><span class="amount">Rp 272.111.000</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ LPE ═══════ -->
+    <div id="page-lpe" class="page">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">📈 Laporan Perubahan Ekuitas</div><div class="card-sub">Periode 1 Jan – 31 Des 2025</div></div></div>
+        <div class="card-body">
+          <div class="neraca-section">
+            <div class="neraca-group-title">EKUITAS / MODAL</div>
+            <div class="neraca-row"><span>Saldo Awal – Penyertaan Modal Desa</span><span class="amount pos">272.111.000</span></div>
+            <div class="neraca-row"><span>Tambahan Modal Tahun Berjalan</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Bagi Hasil Modal</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Laba / Rugi Tahun Berjalan</span><span class="amount">—</span></div>
+            <div class="neraca-total grand"><span>SALDO AKHIR EKUITAS</span><span class="amount">Rp 272.111.000</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ LAK ═══════ -->
+    <div id="page-lak" class="page">
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">💸 Laporan Arus Kas</div><div class="card-sub">Periode 1 Jan – 31 Des 2025</div></div></div>
+        <div class="card-body">
+          <div class="neraca-section">
+            <div class="neraca-group-title">ARUS KAS DARI AKTIVITAS OPERASI</div>
+            <div class="neraca-row"><span>Penerimaan dari Pelanggan</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pembayaran kepada Pemasok</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pembayaran Gaji & Upah</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pembayaran Beban Operasional</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>Arus Kas Bersih – Operasi</span><span class="amount">Rp 0</span></div>
+          </div>
+          <div class="neraca-section">
+            <div class="neraca-group-title">ARUS KAS DARI AKTIVITAS INVESTASI</div>
+            <div class="neraca-row"><span>Pembelian Aset Tetap</span><span class="amount">—</span></div>
+            <div class="neraca-row"><span>Pengeluaran Investasi</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>Arus Kas Bersih – Investasi</span><span class="amount">Rp 0</span></div>
+          </div>
+          <div class="neraca-section">
+            <div class="neraca-group-title">ARUS KAS DARI AKTIVITAS PENDANAAN</div>
+            <div class="neraca-row"><span>Penerimaan Modal dari Desa</span><span class="amount pos">272.111.000</span></div>
+            <div class="neraca-row"><span>Bagi Hasil / Dividen</span><span class="amount">—</span></div>
+            <div class="neraca-total"><span>Arus Kas Bersih – Pendanaan</span><span class="amount pos">Rp 272.111.000</span></div>
+          </div>
+          <div class="neraca-total grand"><span>KENAIKAN KAS BERSIH</span><span class="amount">Rp 272.111.000</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ BP PIUTANG ═══════ -->
+    <div id="page-bp-piutang" class="page">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'tab-piutang')">📌 Buku Pembantu Piutang</div>
+        <div class="tab" onclick="switchTab(this,'tab-utang')">📌 Buku Pembantu Utang</div>
+        <div class="tab" onclick="switchTab(this,'tab-riwayat')">📜 Riwayat Piutang/Utang</div>
+      </div>
+      <div id="tab-piutang" class="card">
+        <div class="card-header">
+          <div><div class="card-title">Buku Pembantu Piutang</div></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-bp-piutang')">➕ Tambah</button>
+        </div>
+        <div class="card-body">
+          <div class="empty-state"><div class="empty-icon">📌</div><div class="empty-title">Belum ada data piutang</div><div class="empty-desc">Piutang akan otomatis muncul dari jurnal transaksi akun piutang</div></div>
+        </div>
+      </div>
+      <div id="tab-utang" class="card" style="display:none;">
+        <div class="card-header"><div class="card-title">Buku Pembantu Utang</div></div>
+        <div class="card-body">
+          <div class="empty-state"><div class="empty-icon">📌</div><div class="empty-title">Belum ada data utang</div><div class="empty-desc">Utang akan otomatis muncul dari jurnal transaksi akun utang</div></div>
+        </div>
+      </div>
+      <div id="tab-riwayat" class="card" style="display:none;">
+        <div class="card-header"><div class="card-title">Riwayat Piutang & Utang</div></div>
+        <div class="card-body">
+          <div class="empty-state"><div class="empty-icon">📜</div><div class="empty-title">Belum ada riwayat</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ BP PERSEDIAAN ═══════ -->
+    <div id="page-bp-persediaan" class="page">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">📦 Buku Pembantu Persediaan</div><div class="card-sub">Kartu persediaan per jenis barang</div></div>
+          <button class="btn btn-primary btn-sm">➕ Tambah Mutasi</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kode Akun</th><th>Nama Persediaan</th><th class="right">Saldo Awal</th><th class="right">Masuk</th><th class="right">Keluar</th><th class="right">Saldo Akhir</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="kode-akun">1.1.05.01</td><td>Persediaan Barang Dagangan</td><td class="right">—</td><td class="right">—</td><td class="right">—</td><td class="right amount">Rp 0</td></tr>
+              <tr><td class="kode-akun">1.1.05.05</td><td>Persediaan Produk Agrikultur – Ayam Potong</td><td class="right">—</td><td class="right">—</td><td class="right">—</td><td class="right amount">Rp 0</td></tr>
+              <tr><td class="kode-akun">1.1.05.08</td><td>Persediaan Produk Agrikultur – Susu</td><td class="right">—</td><td class="right">—</td><td class="right">—</td><td class="right amount">Rp 0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Modal Jurnal -->
+<div class="modal-overlay" id="modal-jurnal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📝 Input Transaksi Baru</div>
+      <button class="modal-close" onclick="closeModal('modal-jurnal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid cols3 mb-16">
+        <div class="form-group">
+          <label>Tanggal</label>
+          <input type="date" id="j-tanggal">
+        </div>
+        <div class="form-group">
+          <label>No. Bukti</label>
+          <input type="text" placeholder="contoh: BKK-001">
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <input type="text" placeholder="Deskripsi transaksi">
+        </div>
+      </div>
+      <div style="font-size:12px; font-weight:700; margin-bottom:8px;">Baris Jurnal:</div>
+      <div class="alert alert-warning" style="margin-bottom:12px; font-size:11.5px;">⚖️ Total Debit harus sama dengan Total Kredit</div>
+      <div id="jurnal-baris">
+        <div class="form-grid cols3" style="margin-bottom:8px; align-items:end;">
+          <div class="form-group" style="grid-column:span 1;">
+            <label>Kode / Nama Akun</label>
+            <select style="width:100%; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:12.5px;" class="akun-select"></select>
+          </div>
+          <div class="form-group">
+            <label>Debit (Rp)</label>
+            <input type="number" placeholder="0" class="debit-input">
+          </div>
+          <div class="form-group">
+            <label>Kredit (Rp)</label>
+            <input type="number" placeholder="0" class="kredit-input">
+          </div>
+        </div>
+        <div class="form-grid cols3" style="margin-bottom:8px; align-items:end;">
+          <div class="form-group" style="grid-column:span 1;">
+            <select style="width:100%; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:12.5px;" class="akun-select"></select>
+          </div>
+          <div class="form-group">
+            <input type="number" placeholder="0" class="debit-input">
+          </div>
+          <div class="form-group">
+            <input type="number" placeholder="0" class="kredit-input">
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="tambahBaris()" style="margin-top:4px;">➕ Tambah Baris</button>
+      <div class="divider"></div>
+      <div class="flex-between" style="font-size:13px; font-weight:700;">
+        <span>Total:</span>
+        <span>Debit: <span style="color:var(--biru);" id="total-debit">Rp 0</span> | Kredit: <span style="color:var(--merah);" id="total-kredit">Rp 0</span></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-jurnal')">Batal</button>
+      <button class="btn btn-primary" onclick="simpanJurnal()">💾 Simpan Jurnal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Identitas -->
+<div class="modal-overlay" id="modal-identitas">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Identitas BUMDesa</div>
+      <button class="modal-close" onclick="closeModal('modal-identitas')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid cols2">
+        <div class="form-group"><label>Nama Kabupaten</label><input type="text" value="Bangkalan"></div>
+        <div class="form-group"><label>ID BUM Desa</label><input type="text" value="3526132002-1-093683"></div>
+        <div class="form-group"><label>Nama Desa</label><input type="text" value="Tanah Merah Laok"></div>
+        <div class="form-group"><label>Nama BUMDesa</label><input type="text" value="BHEJREH GHUNAH"></div>
+        <div class="form-group" style="grid-column:span 2;"><label>Alamat</label><input type="text" value="Desa Tanah Merah Laok"></div>
+        <div class="form-group"><label>KP / Unit Usaha</label><input type="text" value="Peternakan"></div>
+        <div class="form-group"><label>Nama Direktur</label><input type="text" value="FATHORROSSI"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-identitas')">Batal</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-identitas'); showNotif('✅ Identitas berhasil disimpan!')">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="notif" id="notif">✅ Berhasil disimpan!</div>
+
+<script>
+// ── COA DATA ──
+const coaData = [
+  {no:1, kode:'1.1.01.01', nama:'Kas Tunai', normal:'Debit'},
+  {no:2, kode:'1.1.01.02', nama:'Kas di Bank BSI', normal:'Debit'},
+  {no:3, kode:'1.1.01.03', nama:'Kas di Bank Mandiri', normal:'Debit'},
+  {no:4, kode:'1.1.01.04', nama:'Kas di Bank BRI', normal:'Debit'},
+  {no:5, kode:'1.1.01.05', nama:'Kas di Bank BCA', normal:'Debit'},
+  {no:6, kode:'1.1.01.98', nama:'Kas Kecil (Petty Cash)', normal:'Debit'},
+  {no:7, kode:'1.1.02.01', nama:'Deposito <= 3 bulan', normal:'Debit'},
+  {no:8, kode:'1.1.03.01', nama:'Piutang Usaha', normal:'Debit'},
+  {no:9, kode:'1.1.03.02', nama:'Piutang kepada Pegawai', normal:'Debit'},
+  {no:10, kode:'1.1.04.01', nama:'Penyisihan Piutang Usaha Tak Tertagih', normal:'Kredit'},
+  {no:11, kode:'1.1.05.01', nama:'Persediaan Barang Dagangan', normal:'Debit'},
+  {no:12, kode:'1.1.05.02', nama:'Persediaan Bahan Baku', normal:'Debit'},
+  {no:13, kode:'1.1.05.05', nama:'Persediaan Produk Agrikultur – Ayam Potong', normal:'Debit'},
+  {no:14, kode:'1.1.05.07', nama:'Persediaan Produk Agrikultur – Ikan Mas', normal:'Debit'},
+  {no:15, kode:'1.1.05.08', nama:'Persediaan Produk Agrikultur – Susu', normal:'Debit'},
+  {no:16, kode:'1.1.06.01', nama:'Alat Tulis Kantor (ATK)', normal:'Debit'},
+  {no:17, kode:'1.1.07.01', nama:'Sewa Dibayar Dimuka', normal:'Debit'},
+  {no:18, kode:'1.1.08.01', nama:'Aset Biologis – Ayam', normal:'Debit'},
+  {no:19, kode:'1.1.08.02', nama:'Aset Biologis – Ikan Mas', normal:'Debit'},
+  {no:20, kode:'1.2.01.01', nama:'Deposito > 3 bulan', normal:'Debit'},
+  {no:21, kode:'1.3.01.01', nama:'Tanah', normal:'Debit'},
+  {no:22, kode:'1.3.02.01', nama:'Kendaraan', normal:'Debit'},
+  {no:23, kode:'1.3.03.01', nama:'Peralatan dan Mesin', normal:'Debit'},
+  {no:24, kode:'1.3.04.01', nama:'Meubelair', normal:'Debit'},
+  {no:25, kode:'1.3.05.01', nama:'Gedung dan Bangunan', normal:'Debit'},
+  {no:26, kode:'1.3.07.01', nama:'Akumulasi Penyusutan Kendaraan', normal:'Kredit'},
+  {no:27, kode:'1.3.07.02', nama:'Akumulasi Penyusutan Peralatan dan Mesin', normal:'Kredit'},
+  {no:28, kode:'1.3.07.04', nama:'Akumulasi Penyusutan Gedung dan Bangunan', normal:'Kredit'},
+  {no:29, kode:'1.3.08.01', nama:'Aset Tetap – Sapi Perah', normal:'Debit'},
+  {no:30, kode:'2.1.01.01', nama:'Utang Usaha', normal:'Kredit'},
+  {no:31, kode:'2.1.02.02', nama:'PPh 21', normal:'Kredit'},
+  {no:32, kode:'2.1.02.03', nama:'PPh 23', normal:'Kredit'},
+  {no:33, kode:'2.1.03.01', nama:'Utang Gaji dan Tunjangan', normal:'Kredit'},
+  {no:34, kode:'2.1.03.02', nama:'Utang Gaji/Upah Karyawan', normal:'Kredit'},
+  {no:35, kode:'2.1.04.01', nama:'Utang Listrik', normal:'Kredit'},
+  {no:36, kode:'2.2.01.01', nama:'Utang Ke Bank', normal:'Kredit'},
+  {no:37, kode:'3.1.01.01', nama:'Penyertaan Modal Desa', normal:'Kredit'},
+  {no:38, kode:'3.1.02.01', nama:'Penyertaan Modal Masyarakat', normal:'Kredit'},
+  {no:39, kode:'3.3.01.01', nama:'Saldo Laba Tidak Dicadangkan', normal:'Kredit'},
+  {no:40, kode:'3.9.01.01', nama:'Ikhtisar Laba Rugi', normal:'Kredit'},
+  {no:41, kode:'4.1.01.01', nama:'Pendapatan Tiket', normal:'Kredit'},
+  {no:42, kode:'4.1.02.01', nama:'Pendapatan Pengelolaan Air Bersih', normal:'Kredit'},
+  {no:43, kode:'4.1.03.01', nama:'Pendapatan Pengelolaan Sampah', normal:'Kredit'},
+  {no:44, kode:'4.1.04.01', nama:'Pendapatan Sewa Tempat Outbound', normal:'Kredit'},
+  {no:45, kode:'4.1.04.03', nama:'Pendapatan Sewa Gedung', normal:'Kredit'},
+  {no:46, kode:'4.1.04.04', nama:'Pendapatan Sewa Mobil', normal:'Kredit'},
+  {no:47, kode:'4.1.05.01', nama:'Pendapatan Jasa Pembayaran Listrik', normal:'Kredit'},
+  {no:48, kode:'4.1.08.01', nama:'Pendapatan Simpan Pinjam', normal:'Kredit'},
+  {no:49, kode:'4.2.01.01', nama:'Pendapatan Penjualan Makanan/Minuman', normal:'Kredit'},
+  {no:50, kode:'4.2.01.07', nama:'Pendapatan Penjualan Susu', normal:'Kredit'},
+  {no:51, kode:'4.2.01.09', nama:'Pendapatan Penjualan Ayam', normal:'Kredit'},
+  {no:52, kode:'4.3.01.02', nama:'Pendapatan Restoran', normal:'Kredit'},
+  {no:53, kode:'5.1.01.01', nama:'Harga Pokok Penjualan Barang Dagangan', normal:'Debit'},
+  {no:54, kode:'5.2.01.01', nama:'Harga Pokok Penjualan Barang Jadi', normal:'Debit'},
+  {no:55, kode:'6.1.01.01', nama:'Beban Gaji dan Tunjangan Bag. Adum', normal:'Debit'},
+  {no:56, kode:'6.1.01.02', nama:'Beban Honor Lembur Bag. Adum', normal:'Debit'},
+  {no:57, kode:'6.1.01.04', nama:'Beban Insentif (Bonus) Bag. Adum', normal:'Debit'},
+  {no:58, kode:'6.1.02.01', nama:'Beban Alat Tulis Kantor (ATK)', normal:'Debit'},
+  {no:59, kode:'6.1.03.01', nama:'Beban Pemeliharaan dan Perbaikan', normal:'Debit'},
+  {no:60, kode:'6.1.04.01', nama:'Beban Listrik', normal:'Debit'},
+  {no:61, kode:'6.1.04.02', nama:'Beban Telepon/Internet', normal:'Debit'},
+  {no:62, kode:'6.1.05.01', nama:'Beban Sewa', normal:'Debit'},
+  {no:63, kode:'6.1.05.02', nama:'Beban Asuransi', normal:'Debit'},
+  {no:64, kode:'6.1.07.02', nama:'Beban Penyusutan Kendaraan', normal:'Debit'},
+  {no:65, kode:'6.1.07.03', nama:'Beban Penyusutan Peralatan dan Mesin', normal:'Debit'},
+  {no:66, kode:'6.1.07.05', nama:'Beban Penyusutan Gedung dan Bangunan', normal:'Debit'},
+  {no:67, kode:'6.1.99.03', nama:'Beban Perjalanan Dinas', normal:'Debit'},
+  {no:68, kode:'6.1.99.99', nama:'Beban Administrasi dan Umum Lainnya', normal:'Debit'},
+  {no:69, kode:'6.2.01.01', nama:'Beban Gaji/Upah Bag. Operasional', normal:'Debit'},
+  {no:70, kode:'6.2.99.03', nama:'Beban Pakan Ikan', normal:'Debit'},
+  {no:71, kode:'6.2.99.99', nama:'Beban Operasional Lainnya', normal:'Debit'},
+  {no:72, kode:'6.3.01.01', nama:'Beban Gaji/Upah Bag. Pemasaran', normal:'Debit'},
+];
+
+// ── STATE ──
+const state = { journals: [] };
+
+// ── NAVIGATION ──
+const pageTitles = {
+  'home': ['Beranda – PPAK BUMDesa', 'Aplikasi Pencatatan dan Pelaporan Akuntansi Keuangan Badan Usaha Milik Desa'],
+  'eis': ['Ringkasan Informasi Eksekutif', 'Dashboard kinerja keuangan BUMDesa'],
+  'jurnal': ['Jurnal Transaksi', 'Pencatatan transaksi dengan sistem double entry'],
+  'coa': ['Daftar Akun (COA)', 'Chart of Accounts – Kode dan nama akun BUMDesa'],
+  'buku-besar': ['Buku Besar', 'Mutasi debit dan kredit per akun'],
+  'neraca-saldo': ['Neraca Saldo', 'Saldo debit dan kredit seluruh akun'],
+  'laba-rugi': ['Laporan Laba Rugi', 'Pendapatan, HPP, dan beban periode berjalan'],
+  'neraca': ['Neraca / Laporan Posisi Keuangan', 'Aset, kewajiban, dan ekuitas per tanggal pelaporan'],
+  'lpe': ['Laporan Perubahan Ekuitas', 'Perubahan modal dan laba ditahan'],
+  'lak': ['Laporan Arus Kas', 'Arus kas operasi, investasi, dan pendanaan'],
+  'bp-piutang': ['Buku Pembantu Piutang & Utang', 'Rincian piutang dan utang per debitur/kreditur'],
+  'bp-persediaan': ['Buku Pembantu Persediaan', 'Kartu persediaan per jenis barang'],
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+  const t = pageTitles[name] || ['', ''];
+  document.getElementById('topbar-title').textContent = t[0];
+  document.getElementById('topbar-sub').textContent = t[1];
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+name+"'")) n.classList.add('active');
+  });
+}
+
+// ── COA TABLE ──
+function renderCOA(filter='') {
+  const tbody = document.getElementById('coa-tbody');
+  const data = filter ? coaData.filter(r => r.kode.startsWith(filter)) : coaData;
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td class="muted">${r.no}</td>
+      <td class="kode-akun">${r.kode}</td>
+      <td>${r.nama}</td>
+      <td><span class="badge ${r.normal==='Debit'?'badge-debit':'badge-kredit'}">${r.normal}</span></td>
+      <td class="right amount">—</td>
+      <td class="right amount">—</td>
+      <td class="right muted">—</td>
+    </tr>
+  `).join('');
+}
+
+function filterCOA(val) { renderCOA(val); }
+
+// ── POPULATE SELECTS ──
+function populateAkunSelects() {
+  const opts = coaData.map(r => `<option value="${r.kode}">${r.kode} – ${r.nama}</option>`).join('');
+  document.querySelectorAll('.akun-select').forEach(s => { s.innerHTML = '<option value="">— Pilih akun —</option>' + opts; });
+  const bbSel = document.getElementById('bb-select');
+  if (bbSel) bbSel.innerHTML = '<option value="">— Pilih akun —</option>' + opts;
+}
+
+// ── TAMBAH BARIS JURNAL ──
+function tambahBaris() {
+  const opts = coaData.map(r => `<option value="${r.kode}">${r.kode} – ${r.nama}</option>`).join('');
+  const row = document.createElement('div');
+  row.className = 'form-grid cols3';
+  row.style.marginBottom = '8px';
+  row.innerHTML = `
+    <div class="form-group" style="grid-column:span 1;">
+      <select style="width:100%; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:12.5px;" class="akun-select">
+        <option value="">— Pilih akun —</option>${opts}
+      </select>
+    </div>
+    <div class="form-group"><input type="number" placeholder="0" class="debit-input" oninput="updateTotal()"></div>
+    <div class="form-group"><input type="number" placeholder="0" class="kredit-input" oninput="updateTotal()"></div>
+  `;
+  document.getElementById('jurnal-baris').appendChild(row);
+}
+
+function updateTotal() {
+  const d = [...document.querySelectorAll('.debit-input')].reduce((s,i) => s + (+i.value||0), 0);
+  const k = [...document.querySelectorAll('.kredit-input')].reduce((s,i) => s + (+i.value||0), 0);
+  const fmt = v => 'Rp ' + v.toLocaleString('id-ID');
+  document.getElementById('total-debit').textContent = fmt(d);
+  document.getElementById('total-kredit').textContent = fmt(k);
+}
+
+function simpanJurnal() {
+  showNotif('✅ Jurnal berhasil disimpan!');
+  closeModal('modal-jurnal');
+}
+
+// ── MODAL ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+// ── TABS ──
+function switchTab(el, targetId) {
+  const container = el.closest('.page');
+  container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['tab-piutang','tab-utang','tab-riwayat'].forEach(id => {
+    const el2 = document.getElementById(id);
+    if(el2) el2.style.display = id===targetId ? 'block' : 'none';
+  });
+}
+
+// ── NOTIF ──
+function showNotif(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg; n.style.display = 'block';
+  setTimeout(() => { n.style.display = 'none'; }, 2500);
+}
+
+// ── INPUT EVENTS ──
+document.querySelectorAll('.debit-input, .kredit-input').forEach(i => i.addEventListener('input', updateTotal));
+
+// ── INIT ──
+renderCOA();
+populateAkunSelects();
+document.getElementById('j-tanggal').valueAsDate = new Date();
+</script>
+</body>
+</html>
